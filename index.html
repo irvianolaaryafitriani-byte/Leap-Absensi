@@ -47,26 +47,29 @@ button{
   border-radius:6px;
   margin:4px;
   display:inline-block;
-  font-size:13px;
-}
-.student-item{
-  padding:8px;
-  border-radius:6px;
-  cursor:pointer;
-  margin-bottom:4px;
-}
-.student-item:hover{background:#f1f5f9}
-.student-selected{background:#dbeafe}
-
-#preview img,#preview video{
-  width:90px;height:90px;
-  object-fit:cover;border-radius:6px;margin:5px;
 }
 
-/* LOADING */
+/* ===== MURID LIST ===== */
+#muridList{
+  border:1px solid #ddd;
+  border-radius:8px;
+  max-height:160px;
+  overflow:auto;
+  padding:6px;
+  margin-top:6px;
+}
+.murid-item{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:4px;
+}
+
+/* ===== LOADING ===== */
 #loadingBox{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,.4);
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.4);
   display:none;
   align-items:center;
   justify-content:center;
@@ -74,9 +77,10 @@ button{
 }
 .loading-card{
   background:#fff;
-  padding:22px;
+  padding:22px 26px;
   border-radius:12px;
   text-align:center;
+  max-width:280px;
 }
 </style>
 </head>
@@ -121,8 +125,6 @@ button{
       <option>Baca Tulis Anak Hebat</option>
       <option>English Club</option>
       <option>Playclass</option>
-      <option>Prisma Kalkulator Tangan</option>
-      <option>Prisma + Math/Mate</option>
       <option>Trial Class</option>
     </select>
 
@@ -141,89 +143,110 @@ button{
 
     <label>Teacher</label>
     <select id="teacher">
-      <option>Ms. Nola</option><option>Ms. Salsa</option><option>Ms. Jihan</option>
-      <option>Ms. Angel</option><option>Ms. Iis</option><option>Ms. Dhea</option><option>Ms. Tika</option>
+      <option>Ms. Nola</option>
+      <option>Ms. Salsa</option>
+      <option>Ms. Jihan</option>
+      <option>Ms. Angel</option>
+      <option>Ms. Iis</option>
+      <option>Ms. Dhea</option>
+      <option>Ms. Tika</option>
     </select>
 
     <label>Asisten Teacher (opsional)</label>
     <select id="assistantTeacher" multiple size="3">
-      <option>Ms. Nola</option><option>Ms. Salsa</option><option>Ms. Jihan</option>
-      <option>Ms. Angel</option><option>Ms. Iis</option><option>Ms. Dhea</option><option>Ms. Tika</option>
+      <option>Ms. Nola</option>
+      <option>Ms. Salsa</option>
+      <option>Ms. Jihan</option>
+      <option>Ms. Angel</option>
+      <option>Ms. Iis</option>
+      <option>Ms. Dhea</option>
+      <option>Ms. Tika</option>
     </select>
 
     <label>Nama Murid</label>
     <input type="text" id="searchMurid" placeholder="Ketik nama murid...">
-    <div id="muridList" style="border:1px solid #ddd;border-radius:8px;max-height:160px;overflow:auto;padding:6px"></div>
+    <div id="muridList"></div>
     <div id="selectedMurid"></div>
 
     <label>Status</label>
     <select id="status">
-      <option>Hadir</option><option>Izin</option><option>Sakit</option>
+      <option>Hadir</option>
+      <option>Izin</option>
+      <option>Sakit</option>
     </select>
 
     <label>Dokumentasi (max 3)</label>
     <input type="file" id="files" multiple accept="image/*,video/*">
-    <div id="preview"></div>
 
     <button id="submitBtn">Simpan Absensi</button>
     <button onclick="logout()" style="background:#ef4444;color:#fff">Logout</button>
   </div>
 </div>
 
+<!-- LOADING -->
 <div id="loadingBox">
   <div class="loading-card">
     <h4 id="loadingText">⏳ Menyimpan absensi…</h4>
-    <p>Mohon tunggu sebentar ya</p>
+    <p>Mohon tunggu sebentar</p>
   </div>
 </div>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbxwkvyr07PoKOWZQjaiQayRcOpybflJcpbB3LCbhlZqMtYR2RqYpUs4MtrEbPwIc2idfw/exec";
 
-const loginPage = loginPageEl = document.getElementById("loginPage");
+const loginPage = document.getElementById("loginPage");
 const appPage = document.getElementById("appPage");
 const muridList = document.getElementById("muridList");
-const selectedMurid = document.getElementById("selectedMurid");
+const selectedMuridBox = document.getElementById("selectedMurid");
 const loadingBox = document.getElementById("loadingBox");
 const loadingText = document.getElementById("loadingText");
 
 let students = [];
 let selectedStudents = [];
 
-/* LOGIN */
-loginForm.onsubmit = e => {
+/* ===== VIEW ===== */
+function showLogin(){ loginPage.style.display="block"; appPage.style.display="none"; }
+function showApp(){ loginPage.style.display="none"; appPage.style.display="block"; }
+
+/* ===== LOGIN ===== */
+loginForm.onsubmit = e=>{
   e.preventDefault();
   fetch(`${API_URL}?action=login&teacher=${loginTeacher.value}&pin=${loginPin.value}`)
-    .then(r=>r.json()).then(d=>{
+    .then(r=>r.json())
+    .then(d=>{
       if(!d.success) return alert(d.message);
       localStorage.setItem("teacherLogin","ok");
-      loginPage.style.display="none";
-      appPage.style.display="block";
+      showApp();
     });
 };
 
-if(localStorage.getItem("teacherLogin")){
-  loginPage.style.display="none";
-  appPage.style.display="block";
+document.addEventListener("DOMContentLoaded", ()=>{
+  localStorage.getItem("teacherLogin") ? showApp() : showLogin();
+});
+
+function logout(){
+  localStorage.clear();
+  showLogin();
 }
 
-/* LOAD STUDENTS */
-fetch(API_URL+"?action=students").then(r=>r.json()).then(d=>students=d);
+/* ===== LOAD STUDENTS ===== */
+fetch(API_URL+"?action=students")
+  .then(r=>r.json())
+  .then(d=>students=d);
 
-/* SEARCH + MULTI SELECT */
-searchMurid.oninput = () => {
-  const q = searchMurid.value.toLowerCase();
+/* ===== SEARCH ===== */
+searchMurid.oninput = ()=>{
   muridList.innerHTML="";
+  const q = searchMurid.value.toLowerCase();
   students.forEach(s=>{
     if(s[0].toLowerCase().includes(q)){
       const div=document.createElement("div");
-      div.className="student-item"+(selectedStudents.includes(s[0])?" student-selected":"");
-      div.textContent=s[0];
-      div.onclick=()=>{
-        selectedStudents.includes(s[0])
-          ? selectedStudents=selectedStudents.filter(n=>n!==s[0])
-          : selectedStudents.push(s[0]);
-        renderSelected(); searchMurid.oninput();
+      div.className="murid-item";
+      div.innerHTML=`<input type="checkbox" value="${s[0]}"> ${s[0]}`;
+      div.querySelector("input").onchange = e=>{
+        if(e.target.checked) selectedStudents.push(e.target.value);
+        else selectedStudents = selectedStudents.filter(n=>n!==e.target.value);
+        renderSelected();
       };
       muridList.appendChild(div);
     }
@@ -231,39 +254,46 @@ searchMurid.oninput = () => {
 };
 
 function renderSelected(){
-  selectedMurid.innerHTML="";
-  selectedStudents.forEach(n=>selectedMurid.innerHTML+=`<span class="tag">${n}</span>`);
+  selectedMuridBox.innerHTML="";
+  selectedStudents.forEach(n=>{
+    selectedMuridBox.innerHTML+=`<span class="tag">${n}</span>`;
+  });
 }
 
-/* SUBMIT */
-submitBtn.onclick = async ()=>{
-  if(!kelas.value||!jamSesi.value||selectedStudents.length==0) return alert("Lengkapi data");
-
-  loadingBox.style.display="flex";
-  let filesArr=[];
-  for(const f of files.files){
-    const b=await toBase64(f);
-    filesArr.push({name:f.name,type:f.type,data:b.split(",")[1]});
+/* ===== SUBMIT ===== */
+submitBtn.onclick = async()=>{
+  if(!kelas.value || !jamSesi.value || selectedStudents.length===0){
+    alert("Lengkapi data absensi");
+    return;
   }
 
-  await fetch(API_URL,{method:"POST",body:JSON.stringify({
-    kelas:kelas.value,
-    jamSesi:jamSesi.value,
-    teacher:teacher.value,
-    assistantTeacher:[...assistantTeacher.selectedOptions].map(o=>o.value),
-    murid:selectedStudents,
-    status:status.value,
-    files:filesArr
-  })});
+  loadingBox.style.display="flex";
+  submitBtn.disabled=true;
 
-  loadingText.innerText="✨ Terima kasih Miss! Absensi berhasil disimpan 💛";
-  setTimeout(()=>location.reload(),1500);
+  try{
+    await fetch(API_URL,{
+      method:"POST",
+      body:JSON.stringify({
+        kelas:kelas.value,
+        jamSesi:jamSesi.value,
+        teacher:teacher.value,
+        assistantTeacher:[...assistantTeacher.selectedOptions].map(o=>o.value),
+        murid:selectedStudents,
+        status:status.value,
+        files:[]
+      })
+    });
+
+    loadingText.innerText="✨ Absensi berhasil disimpan 💛";
+    setTimeout(()=>location.reload(),1200);
+
+  }catch{
+    loadingText.innerText="❌ Gagal menyimpan absensi";
+    submitBtn.disabled=false;
+    setTimeout(()=>loadingBox.style.display="none",1500);
+  }
 };
-
-function logout(){localStorage.clear();location.reload();}
-function toBase64(f){return new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(f);});}
 </script>
 
 </body>
 </html>
-
