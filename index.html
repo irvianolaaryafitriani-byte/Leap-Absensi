@@ -6,77 +6,37 @@
 <title>LEAP Learning – Absensi Kelas</title>
 
 <style>
-:root{
-  --blue:#5bbcff;
-  --yellow:#ffd600;
-}
 body{
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, var(--blue), #a7d8ff);
-  padding:20px;
+  font-family:Arial;
+  background:#5bbcff;
+  padding:20px
 }
 .card{
   background:#fff;
   max-width:420px;
   margin:auto;
   padding:25px;
-  border-radius:16px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.15);
+  border-radius:14px
 }
-.logo{text-align:center;margin-bottom:10px}
-.logo img{height:70px}
-h3{text-align:center;margin-bottom:20px}
-label{font-size:14px;margin-top:10px;display:block}
+label{display:block;margin-top:10px}
 select,input,button{
   width:100%;
-  padding:12px;
-  margin-top:6px;
-  border-radius:8px;
-  border:1px solid #ddd;
+  padding:10px;
+  margin-top:6px
 }
 button{
-  background:linear-gradient(90deg,var(--blue),var(--yellow));
+  background:#ffd600;
   border:none;
-  font-weight:bold;
-  cursor:pointer;
-  margin-top:15px;
+  font-weight:bold
 }
-.tag{
-  background:#e0f2fe;
-  padding:6px 10px;
-  border-radius:6px;
-  margin:4px;
-  display:inline-block;
-}
-#muridList{
-  border:1px solid #ddd;
-  border-radius:8px;
-  max-height:160px;
-  overflow:auto;
-  padding:6px;
-  margin-top:6px;
-}
-.murid-item{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  padding:4px;
-}
+#muridList div{margin:4px 0}
 #loadingBox{
+  display:none;
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,0.4);
-  display:none;
+  background:rgba(0,0,0,.4);
   align-items:center;
-  justify-content:center;
-  z-index:9999;
-}
-.loading-card{
-  background:#fff;
-  padding:22px 26px;
-  border-radius:12px;
-  text-align:center;
-  max-width:280px;
+  justify-content:center
 }
 </style>
 </head>
@@ -84,85 +44,42 @@ button{
 <body>
 
 <div class="card">
-  <div class="logo">
-    <img src="logo leap learning.jpg">
-  </div>
 
   <!-- LOGIN -->
   <div id="loginPage">
     <h3>Login Teacher</h3>
-    <form id="loginForm">
-      <label>Nama Teacher</label>
-      <select id="loginTeacher" required>
-        <option value="">-- Pilih Teacher --</option>
-        <option>Ms. Nola</option>
-        <option>Ms. Salsa</option>
-        <option>Ms. Jihan</option>
-        <option>Ms. Angel</option>
-        <option>Ms. Iis</option>
-        <option>Ms. Dhea</option>
-        <option>Ms. Tika</option>
-      </select>
-
-      <label>PIN</label>
-      <input type="password" id="loginPin" required>
-
-      <button type="submit">Login</button>
-    </form>
+    <select id="loginTeacher">
+      <option>Ms. Nola</option>
+      <option>Ms. Salsa</option>
+    </select>
+    <input type="password" id="loginPin" placeholder="PIN">
+    <button onclick="login()">Login</button>
   </div>
 
   <!-- APP -->
   <div id="appPage" style="display:none">
-    <h3>Absensi Kelas</h3>
-
     <label>Kelas</label>
-    <select id="kelas" required>
-      <option value="">-- Pilih Program --</option>
+    <select id="kelas">
       <option>Baca Tulis Anak Hebat</option>
       <option>English Club</option>
       <option>Playclass</option>
-      <option>Trial Class</option>
     </select>
 
     <label>Jam Sesi</label>
-    <select id="jamSesi" required>
-      <option value="">-- Pilih Jam --</option>
+    <select id="jamSesi">
       <option>08.00-09.00</option>
       <option>09.00-10.00</option>
-      <option>10.00-11.00</option>
-      <option>11.00-12.00</option>
-      <option>13.00-14.00</option>
-      <option>14.00-15.00</option>
-      <option>15.00-16.00</option>
-      <option>16.00-17.00</option>
     </select>
 
     <label>Teacher</label>
     <select id="teacher">
       <option>Ms. Nola</option>
       <option>Ms. Salsa</option>
-      <option>Ms. Jihan</option>
-      <option>Ms. Angel</option>
-      <option>Ms. Iis</option>
-      <option>Ms. Dhea</option>
-      <option>Ms. Tika</option>
-    </select>
-
-    <label>Asisten Teacher (opsional)</label>
-    <select id="assistantTeacher" multiple size="3">
-      <option>Ms. Nola</option>
-      <option>Ms. Salsa</option>
-      <option>Ms. Jihan</option>
-      <option>Ms. Angel</option>
-      <option>Ms. Iis</option>
-      <option>Ms. Dhea</option>
-      <option>Ms. Tika</option>
     </select>
 
     <label>Nama Murid</label>
-    <input type="text" id="searchMurid" placeholder="Ketik nama murid...">
+    <input id="searchMurid" placeholder="Cari murid">
     <div id="muridList"></div>
-    <div id="selectedMurid"></div>
 
     <label>Status</label>
     <select id="status">
@@ -171,119 +88,95 @@ button{
       <option>Sakit</option>
     </select>
 
-    <button id="submitBtn">Simpan Absensi</button>
-    <button onclick="logout()" style="background:#ef4444;color:#fff">Logout</button>
+    <!-- 🔥 UPLOAD DOKUMENTASI -->
+    <label>Dokumentasi (max 3 file)</label>
+    <input type="file" id="files" multiple accept="image/*,video/*">
+
+    <button onclick="submitAbsensi()">Simpan Absensi</button>
   </div>
 </div>
 
 <div id="loadingBox">
-  <div class="loading-card">
-    <h4 id="loadingText">⏳ Menyimpan absensi…</h4>
-    <p>Mohon tunggu sebentar</p>
-  </div>
+  <div class="card">⏳ Menyimpan data…</div>
 </div>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbxwkvyr07PoKOWZQjaiQayRcOpybflJcpbB3LCbhlZqMtYR2RqYpUs4MtrEbPwIc2idfw/exec";
 
-const loginPage = document.getElementById("loginPage");
-const appPage = document.getElementById("appPage");
-const muridList = document.getElementById("muridList");
-const selectedMuridBox = document.getElementById("selectedMurid");
-const loadingBox = document.getElementById("loadingBox");
-const loadingText = document.getElementById("loadingText");
-
 let students = [];
-let selectedStudents = [];
-
-function showLogin(){ loginPage.style.display="block"; appPage.style.display="none"; }
-function showApp(){ loginPage.style.display="none"; appPage.style.display="block"; }
-
-loginForm.onsubmit = e=>{
-  e.preventDefault();
-  fetch(`${API_URL}?action=login&teacher=${loginTeacher.value}&pin=${loginPin.value}`)
-    .then(r=>r.json())
-    .then(d=>{
-      if(!d.success) return alert(d.message);
-      localStorage.setItem("teacherLogin","ok");
-      showApp();
-    });
-};
-
-document.addEventListener("DOMContentLoaded", ()=>{
-  localStorage.getItem("teacherLogin") ? showApp() : showLogin();
-});
-
-function logout(){
-  localStorage.clear();
-  showLogin();
-}
+let selected = [];
 
 fetch(API_URL+"?action=students")
   .then(r=>r.json())
   .then(d=>students=d);
 
-searchMurid.oninput = ()=>{
+searchMurid.oninput=()=>{
   muridList.innerHTML="";
-  const q = searchMurid.value.toLowerCase();
   students.forEach(s=>{
-    if(s[0].toLowerCase().includes(q)){
-      const div=document.createElement("div");
-      div.className="murid-item";
-      div.innerHTML=`<input type="checkbox" value="${s[0]}"> ${s[0]}`;
-      div.querySelector("input").onchange = e=>{
-        if(e.target.checked) selectedStudents.push(e.target.value);
-        else selectedStudents = selectedStudents.filter(n=>n!==e.target.value);
-        renderSelected();
-      };
-      muridList.appendChild(div);
+    if(s[0].toLowerCase().includes(searchMurid.value.toLowerCase())){
+      muridList.innerHTML+=`
+        <div>
+          <input type="checkbox" value="${s[0]}" onchange="toggle(this)"> ${s[0]}
+        </div>`;
     }
   });
 };
 
-function renderSelected(){
-  selectedMuridBox.innerHTML="";
-  selectedStudents.forEach(n=>{
-    selectedMuridBox.innerHTML+=`<span class="tag">${n}</span>`;
-  });
+function toggle(cb){
+  cb.checked
+    ? selected.push(cb.value)
+    : selected = selected.filter(x=>x!==cb.value);
 }
 
-submitBtn.onclick = async()=>{
-  if(!kelas.value || !jamSesi.value || selectedStudents.length===0){
-    alert("Lengkapi data absensi");
-    return;
-  }
+function login(){
+  fetch(`${API_URL}?action=login&teacher=${loginTeacher.value}&pin=${loginPin.value}`)
+    .then(r=>r.json())
+    .then(d=>{
+      if(!d.success) return alert(d.message);
+      loginPage.style.display="none";
+      appPage.style.display="block";
+    });
+}
+
+async function submitAbsensi(){
+  if(selected.length===0) return alert("Pilih murid");
 
   loadingBox.style.display="flex";
-  submitBtn.disabled=true;
 
-  try{
-    const res = await fetch(API_URL,{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify({
-        kelas:kelas.value,
-        jamSesi:jamSesi.value,
-        teacher:teacher.value,
-        assistantTeacher:[...assistantTeacher.selectedOptions].map(o=>o.value),
-        murid:selectedStudents,
-        status:status.value,
-        files:[]
-      })
-    });
+  const filesInput = document.getElementById("files");
+  const files = Array.from(filesInput.files).slice(0,3);
 
-    const result = await res.json();
-    if(!result.success) throw new Error(result.message);
+  const fileData = await Promise.all(
+    files.map(f=>new Promise(res=>{
+      const reader = new FileReader();
+      reader.onload = () => res({
+        name: f.name,
+        type: f.type,
+        data: reader.result.split(",")[1]
+      });
+      reader.readAsDataURL(f);
+    }))
+  );
 
-    loadingText.innerText="✨ Absensi berhasil disimpan";
-    setTimeout(()=>location.reload(),1200);
+  const res = await fetch(API_URL,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({
+      kelas:kelas.value,
+      jamSesi:jamSesi.value,
+      teacher:teacher.value,
+      assistantTeacher:[],
+      murid:selected,
+      status:status.value,
+      files:fileData
+    })
+  });
 
-  }catch(err){
-    loadingText.innerText="❌ "+err.message;
-    submitBtn.disabled=false;
-    setTimeout(()=>loadingBox.style.display="none",3000);
-  }
-};
+  const result = await res.json();
+  loadingBox.style.display="none";
+
+  alert(result.success ? "Absensi berhasil" : "Gagal: "+result.message);
+}
 </script>
 
 </body>
