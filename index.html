@@ -48,8 +48,6 @@ button{
   margin:4px;
   display:inline-block;
 }
-
-/* ===== MURID LIST ===== */
 #muridList{
   border:1px solid #ddd;
   border-radius:8px;
@@ -64,8 +62,6 @@ button{
   gap:6px;
   padding:4px;
 }
-
-/* ===== LOADING ===== */
 #loadingBox{
   position:fixed;
   inset:0;
@@ -120,7 +116,7 @@ button{
     <h3>Absensi Kelas</h3>
 
     <label>Kelas</label>
-    <select id="kelas">
+    <select id="kelas" required>
       <option value="">-- Pilih Program --</option>
       <option>Baca Tulis Anak Hebat</option>
       <option>English Club</option>
@@ -129,7 +125,7 @@ button{
     </select>
 
     <label>Jam Sesi</label>
-    <select id="jamSesi">
+    <select id="jamSesi" required>
       <option value="">-- Pilih Jam --</option>
       <option>08.00-09.00</option>
       <option>09.00-10.00</option>
@@ -175,15 +171,11 @@ button{
       <option>Sakit</option>
     </select>
 
-    <label>Dokumentasi (max 3)</label>
-    <input type="file" id="files" multiple accept="image/*,video/*">
-
     <button id="submitBtn">Simpan Absensi</button>
     <button onclick="logout()" style="background:#ef4444;color:#fff">Logout</button>
   </div>
 </div>
 
-<!-- LOADING -->
 <div id="loadingBox">
   <div class="loading-card">
     <h4 id="loadingText">⏳ Menyimpan absensi…</h4>
@@ -204,11 +196,9 @@ const loadingText = document.getElementById("loadingText");
 let students = [];
 let selectedStudents = [];
 
-/* ===== VIEW ===== */
 function showLogin(){ loginPage.style.display="block"; appPage.style.display="none"; }
 function showApp(){ loginPage.style.display="none"; appPage.style.display="block"; }
 
-/* ===== LOGIN ===== */
 loginForm.onsubmit = e=>{
   e.preventDefault();
   fetch(`${API_URL}?action=login&teacher=${loginTeacher.value}&pin=${loginPin.value}`)
@@ -229,12 +219,10 @@ function logout(){
   showLogin();
 }
 
-/* ===== LOAD STUDENTS ===== */
 fetch(API_URL+"?action=students")
   .then(r=>r.json())
   .then(d=>students=d);
 
-/* ===== SEARCH ===== */
 searchMurid.oninput = ()=>{
   muridList.innerHTML="";
   const q = searchMurid.value.toLowerCase();
@@ -260,7 +248,6 @@ function renderSelected(){
   });
 }
 
-/* ===== SUBMIT ===== */
 submitBtn.onclick = async()=>{
   if(!kelas.value || !jamSesi.value || selectedStudents.length===0){
     alert("Lengkapi data absensi");
@@ -271,8 +258,9 @@ submitBtn.onclick = async()=>{
   submitBtn.disabled=true;
 
   try{
-    await fetch(API_URL,{
+    const res = await fetch(API_URL,{
       method:"POST",
+      headers:{ "Content-Type":"application/json" },
       body:JSON.stringify({
         kelas:kelas.value,
         jamSesi:jamSesi.value,
@@ -284,13 +272,16 @@ submitBtn.onclick = async()=>{
       })
     });
 
-    loadingText.innerText="✨ Absensi berhasil disimpan 💛";
+    const result = await res.json();
+    if(!result.success) throw new Error(result.message);
+
+    loadingText.innerText="✨ Absensi berhasil disimpan";
     setTimeout(()=>location.reload(),1200);
 
-  }catch{
-    loadingText.innerText="❌ Gagal menyimpan absensi";
+  }catch(err){
+    loadingText.innerText="❌ "+err.message;
     submitBtn.disabled=false;
-    setTimeout(()=>loadingBox.style.display="none",1500);
+    setTimeout(()=>loadingBox.style.display="none",3000);
   }
 };
 </script>
